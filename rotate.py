@@ -63,7 +63,6 @@ def rotate_x(n):
   return new
 
 
-
 class FooTest(unittest.TestCase):
 
   # ^ y
