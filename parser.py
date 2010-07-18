@@ -12,10 +12,12 @@ xx..
 """
 class Parser():
 	def parse(self, input):
-		return  [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
-
-
-
+		input_arr = input.strip()
+		result_arr = []
+		for char in input_arr:
+			if char in ('.', 'x'):
+				result_arr.append( 1 if (char == 'x') else 0 )
+		return result_arr
 
 
 import unittest
@@ -35,7 +37,24 @@ class Test(unittest.TestCase):
 				....
 				.... 
 				"""
-
+		result = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		self.assertEquals(result, Parser().parse(input))
+	
+	def test_parse_multiple_layers(self):
+		input = """ 
+				....
+				....
+				....
+				....
+				n
+				....
+				xxxx
+				....
+				....
+			"""
+			result = [ [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+					
+			
 
 if __name__ == "__main__":
     unittest.main() 
