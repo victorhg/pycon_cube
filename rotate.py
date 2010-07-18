@@ -55,7 +55,6 @@ class FooTest(unittest.TestCase):
                  0, 0, 0, 0, # 52
                  0, 0, 0, 0, # 56
                  0, 0, 0, 0,] # 60
-  # top layer of the cube
 
   def test_1(self):
     expected = copy.copy(self.data)
