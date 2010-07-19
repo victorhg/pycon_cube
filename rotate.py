@@ -13,6 +13,8 @@ class Rotator(object):
 
   def __init__(self, mapping_size=4):
     self.idx_by_dim, self.dim_by_idx = self.Mappings(mapping_size)
+    self.x_rot_map = None
+    self.y_rot_map = None
 
   def Mappings(self, size):
     """Calculates mappings between coordinates and indexes."""
@@ -46,19 +48,55 @@ class Rotator(object):
     new_z += self.OFFSET
     return (int(new_x), int(new_y), int(new_z))
 
-  def GetRotationMappingX(self):
-    """Rotates along the X axis, top side forward."""
-    x_rot = {}
+  def RotateCoordsY(self, x, y, z):
+    """Rotating topside left."""
+    # p = numpy.array([x, y, z])
+    # x' = x cos f - y sin f
+    # y' = y cos f + x sin f
+    # The dimensions at play are: x, z
+    my_cos = 0
+    my_sin = 1
+    x -= self.OFFSET
+    y -= self.OFFSET
+    z -= self.OFFSET
+    new_x = x * my_cos - z * my_sin
+    new_y = y
+    new_z = z * my_cos + x * my_sin
+    new_x += self.OFFSET
+    new_y += self.OFFSET
+    new_z += self.OFFSET
+    return (int(new_x), int(new_y), int(new_z))
+
+  def _GetRotationMapping(self, function):
+    mapping = {}
     for dim in self.idx_by_dim:
       old_idx = self.idx_by_dim[dim]
-      new_dim = self.RotateCoordsX(*dim)
+      new_dim = function(*dim)
       new_idx = self.idx_by_dim[new_dim]
-      x_rot[old_idx] = new_idx
-    return x_rot
+      mapping[old_idx] = new_idx
+    return mapping
+
+  def GetRotationMappingX(self):
+    if not self.x_rot_map:
+      self.x_rot_map = self._GetRotationMapping(self.RotateCoordsX)
+    return self.x_rot_map
+
+  def GetRotationMappingY(self):
+    if not self.y_rot_map:
+      self.y_rot_map = self._GetRotationMapping(self.RotateCoordsY)
+    return self.y_rot_map
 
   def RotateElementX(self, n):
     assert len(n) == 64, "n has the wrong length."
     mapping = self.GetRotationMappingX()
+    new = range(64)
+    for i in range(64):
+      new[mapping[i]] = n[i]
+    return new
+
+  def RotateElementY(self, n):
+    assert len(n) == 64, "n has the wrong length."
+    mapping = self.GetRotationMappingY()
     new = range(64)
     for i in range(64):
       new[mapping[i]] = n[i]
@@ -73,9 +111,9 @@ class FooTest(unittest.TestCase):
 
   def setUp(self):
     # bottom layer of the cube
-    self.data = [0, 0, 0, 0, # 0
-                 0, 0, 0, 0, # 4
-                 0, 0, 0, 0, # 8
+    self.data = [0, 0, 0, 0, #  0
+                 0, 0, 0, 0, #  4
+                 0, 0, 0, 0, #  8
                  0, 0, 0, 0, # 12
 
                  0, 0, 0, 0, # 16
@@ -158,19 +196,25 @@ class FooTest(unittest.TestCase):
                 'a', 'a', 'a', 'a']
     self.assertEqual(expected, self.r.RotateElementX(data))
 
-  def disabled_testY_1(self):
-    expected = copy.copy(self.data)
-    expected[36] = 1
-    self.data[37] = 1
-    self.assertEqual(expected, rotate_y(self.data))
+  def testRotateCoordsY(self):
+    dim = (0, 0, 0)
+    expected = (3, 0, 0)
+    self.assertEqual(expected, self.r.RotateCoordsY(*dim))
 
-  def disabled_testY_2(self):
+  def testY_1(self):
+    expected = copy.copy(self.data)
+    expected[38] = 1
+    data = copy.copy(self.data)
+    data[22] = 1
+    self.assertEqual(expected, self.r.RotateElementY(data))
+
+  def testY_2(self):
     data = (list('a' * 16)
           + list('b' * 16)
           + list('c' * 16)
           + list('d' * 16))
     expected = list("dcba") * 16
-    self.assertEqual(expected, rotate_y(data))
+    self.assertEqual(expected, self.r.RotateElementY(data))
 
   def test_mappings_1(self):
     expected = {
@@ -197,6 +241,19 @@ class FooTest(unittest.TestCase):
         7: (1, 1, 1)
     }
     self.assertEqual(expected, self.r2.dim_by_idx)
+
+  def testGetRotationMappingX(self):
+    rot_mapping = self.r.GetRotationMappingX()
+    self.assertEqual(64, len(rot_mapping.keys()))
+    self.assertEqual(64, len(set(rot_mapping.values())))
+
+  def testGetRotationMappingY(self):
+    """All the keys and the values have to keep unique after the
+    transformation."""
+    rot_mapping = self.r.GetRotationMappingY()
+    self.assertEqual(64, len(rot_mapping.keys()))
+    self.assertEqual(64, len(set(rot_mapping.values())))
+
 
 if __name__ == '__main__':
   unittest.main()
