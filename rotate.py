@@ -15,6 +15,7 @@ class Rotator(object):
     self.idx_by_dim, self.dim_by_idx = self.Mappings(mapping_size)
     self.x_rot_map = None
     self.y_rot_map = None
+    self.z_rot_map = None
 
   def Mappings(self, size):
     """Calculates mappings between coordinates and indexes."""
@@ -67,6 +68,25 @@ class Rotator(object):
     new_z += self.OFFSET
     return (int(new_x), int(new_y), int(new_z))
 
+  def RotateCoordsZ(self, x, y, z):
+    """Rotating clockwise."""
+    # p = numpy.array([x, y, z])
+    # x' = x cos f - y sin f
+    # y' = y cos f + x sin f
+    # The dimensions at play are: x, z
+    my_cos = 0
+    my_sin = -1
+    x -= self.OFFSET
+    y -= self.OFFSET
+    z -= self.OFFSET
+    new_x = x * my_cos - y * my_sin
+    new_y = y * my_cos + x * my_sin
+    new_z = z
+    new_x += self.OFFSET
+    new_y += self.OFFSET
+    new_z += self.OFFSET
+    return (int(new_x), int(new_y), int(new_z))
+
   def _GetRotationMapping(self, function):
     mapping = {}
     for dim in self.idx_by_dim:
@@ -86,6 +106,11 @@ class Rotator(object):
       self.y_rot_map = self._GetRotationMapping(self.RotateCoordsY)
     return self.y_rot_map
 
+  def GetRotationMappingZ(self):
+    if not self.z_rot_map:
+      self.z_rot_map = self._GetRotationMapping(self.RotateCoordsZ)
+    return self.z_rot_map
+
   def RotateElementX(self, n):
     assert len(n) == 64, "n has the wrong length."
     mapping = self.GetRotationMappingX()
@@ -97,6 +122,14 @@ class Rotator(object):
   def RotateElementY(self, n):
     assert len(n) == 64, "n has the wrong length."
     mapping = self.GetRotationMappingY()
+    new = range(64)
+    for i in range(64):
+      new[mapping[i]] = n[i]
+    return new
+
+  def RotateElementZ(self, n):
+    assert len(n) == 64, "n has the wrong length."
+    mapping = self.GetRotationMappingZ()
     new = range(64)
     for i in range(64):
       new[mapping[i]] = n[i]
@@ -216,6 +249,16 @@ class FooTest(unittest.TestCase):
     expected = list("dcba") * 16
     self.assertEqual(expected, self.r.RotateElementY(data))
 
+  def testRotateCoordsZ(self):
+    dim = (0, 0, 0)
+    expected = (0, 3, 0)
+    self.assertEqual(expected, self.r.RotateCoordsZ(*dim))
+
+  def testRotateCoordsZ_leftTop(self):
+    dim = (0, 3, 0)
+    expected = (3, 3, 0)
+    self.assertEqual(expected, self.r.RotateCoordsZ(*dim))
+
   def test_mappings_1(self):
     expected = {
         (0, 0, 0): 0,
@@ -251,6 +294,13 @@ class FooTest(unittest.TestCase):
     """All the keys and the values have to keep unique after the
     transformation."""
     rot_mapping = self.r.GetRotationMappingY()
+    self.assertEqual(64, len(rot_mapping.keys()))
+    self.assertEqual(64, len(set(rot_mapping.values())))
+
+  def testGetRotationMappingZ(self):
+    """All the keys and the values have to keep unique after the
+    transformation."""
+    rot_mapping = self.r.GetRotationMappingZ()
     self.assertEqual(64, len(rot_mapping.keys()))
     self.assertEqual(64, len(set(rot_mapping.values())))
 
