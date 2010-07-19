@@ -1,9 +1,12 @@
-#0000-0000-0000-0000 0000-0000-0000-0000 0000-0000-0000-0000 0000-0000-000-00000
+#!/usr/bin/env python2.6
 
-#0000 0000 0000 0000
+import optparse
+import pprint
+import unittest
+import sys
 
-
-raw_pieces = [
+# Module data in uppercase
+RAW_PIECES = [
     'x...xx...xx.....',
     '.xx.xx..............x...........',
     '.x..xxx..........x..............',
@@ -27,9 +30,9 @@ def show(pieces):
         print '%d:' % (i+1)
         print
 
-def make_binary(raw_pieces):
+def make_binary(RAW_PIECES):
     pieces = []
-    for piece in raw_pieces:
+    for piece in RAW_PIECES:
         val = 0
         for i, char in enumerate(piece):
             if char == 'x':
@@ -42,13 +45,13 @@ def make_list(pieces):
     for i, piece in enumerate(pieces):
         listpieces.append([])
         str_piece = bin(piece)[2:]
+        if len(str_piece) < 64:
+        	str_piece = '0' * (64 - len(str_piece)) + str_piece
         for char in str_piece:
-            listpieces[i].append(bool(char))
+            listpieces[i].append(bool(int(char)))
     return listpieces
 
-pieces = make_binary(raw_pieces)
-list_pieces = make_list(pieces)
-
+PIECES = make_binary(RAW_PIECES)
 collision = lambda x, y: x & y
 
 def total_collision_count(pieces):
@@ -65,4 +68,38 @@ def total_collision_count(pieces):
         cube |= piece
     return collision_count
 
-print "Total collisions: %d" % total_collision_count(pieces)
+
+class MakeListUnitTest(unittest.TestCase):
+  
+  def testMakeList_1(self):
+    pieces = [0L]
+    self.assertEqual([[False] * 64], make_list(pieces))
+
+  def testMakeList_2(self):
+    pieces = [1L]
+    self.assertEqual([[False] * 63 + [True]], make_list(pieces))
+
+
+def main():
+  """Can be substituted for unittest.main() to run other things."""
+  parser = optparse.OptionParser()
+  parser.add_option("-s", "--show", dest="show",
+                    default=False, action="store_true",
+                    help="Show the pieces")
+  parser.add_option("-c", "--collisions", dest="collisions",
+                    default=False, action="store_true",
+                    help="Show the collisions")
+  parser.add_option("-t", "--test", dest="test",
+                    default=False, action="store_true",
+                    help="Run tests")
+  options, args = parser.parse_args()
+  if options.show:
+    pprint.pprint(make_list(PIECES))
+    show(PIECES)
+  if options.collisions:
+    list_pieces = make_list(PIECES)
+    print "Total collisions: %d" % total_collision_count(pieces)
+
+
+if __name__ == '__main__':
+  unittest.main()
