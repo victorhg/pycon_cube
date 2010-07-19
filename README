@@ -1,1 +1,22 @@
 Pycon Ireland 2010 try out on solving puzzle cube
+
+Target data representation for the space search: a list of 13 64-bit
+integers:
+
+[
+  0b000000110010 (...) 010, # 1st piece
+  0b000001100010 (...) 010, # 2nd piece
+  ...
+                      # 13th piece
+]
+
+...or a list of 13 lists of 64 numbers, where each number is 0 or 1.
+
+[
+  [0, 1, 1, ..., 0, 0],
+  [0, 0, 1, ..., 0, 0],
+  ...
+]
+
+A solution can be represented as a list of 13 numbers, indexes of the
+input lists.
