@@ -1,25 +1,40 @@
+from possibility import Possibility
 
-class Matcher
+class Matcher(object):
 
-	def solution(self):
-		return (2 ** 64 - 1)
+	def __init__(self):
+		self.solution = (2 ** 64 - 1)
 
 	def match(self, possibility):
 		sum = 0b00
-		for piece in possibility.pieces
-			sum += piece	
-		return sum == solution()
+		for piece in possibility.pieces:
+			sum ^= piece
+		return sum == self.solution
 	
-	def evaluate(self, possibility):
-		areTheyfitting(possibility.pieces[0], possibility.piece[0])
-
 	def areTheyFitting(self, piece1, piece2):
-		piece1 = str(bin(piece1)).replace("0b", "")[::-1]
-		piece2 = str(bin(piece2)).replace("0b", "")[::-1]
-		for i in range(0, len(piece1))
-			if (len(str(bin(piece1[i]) + bin(piece2[i])).replace("0b", "")) != 1 )
-				return false
-		return true
+		return (piece1 & piece2) == 0
+
+	def evaluate(self, possibility):
+		best_fit = {}
+		for piece in possibility.pieces:
+			best_fit[piece] = [piece]
+			for test in possibility.pieces:
+				if (self.areTheyFitting(piece, test) and self.doesItFitWithGroup(test, best_fit[piece])):
+					best_fit[piece].append(test)
+								
+		the_best = max([len(s) for s in best_fit.values()])
+		possibility.pieces_fitted = [s for x, y in best_fit.items() if the_best == len(y)][0]	
+
+	def doesItFitWithGroup(self, piece, group): 			
+		for item in group:
+			if not self.areTheyFitting(item, piece):
+				return False
+		return True
+
+	"""
+
+		1 2 3 4 5 6
+		
 
 	def merge(self, data):
 		for i in range()
@@ -37,15 +52,4 @@ class Matcher
 				    data[11][i], 
 				    data[12][i])
 			
-
-class Possibility
-
-	def __init__(self, pieces):
-		self.pieces = pieces
-		self.empty_space = 0
-		self.pieces_fitted = 0
-		
-
-			
-		
-
+	"""
