@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.6
 
 right_edge_mask = 2459528346497712128L
 bottom_edge_mask = 8444249301319680L
@@ -64,8 +65,3 @@ class MoveTest(unittest.TestCase):
 	
 if __name__ == '__main__':
 	unittest.main()
-	
-
-
-
-
