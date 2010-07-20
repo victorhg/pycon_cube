@@ -86,23 +86,23 @@ class AllTheWays(object):
     xxxy  xxyx  xxyy  xyxx xyyy  yxxx  yyyx  xxxyx xyxxx xyyyx"""
     rotation_defs = re.split(r"\s+", data)
     rotations = []
+    functions = {
+        'i': lambda x: x, # Identity
+        'x': self.r.RotatePieceX,
+        'y': self.r.RotatePieceY,
+        'z': self.r.RotatePieceZ,
+    }
     for rotation_def in rotation_defs:
       rotated = piece
       for rotation_dir in rotation_def:
-        if rotation_dir == 'i':
-          # Identity
-          pass
-        elif rotation_dir == 'x':
-          rotated = self.r.RotatePieceX(rotated)
-        elif rotation_dir == 'y':
-          rotated = self.r.RotatePieceY(rotated)
-        elif rotation_dir == 'z':
-          rotated = self.r.RotatePieceZ(rotated)
-        else:
-          raise RuntimeError("Unknown rotation directorion: %s"
-                             % rotation_dir)
+      	rotated = functions[rotation_dir](rotated)
       rotations.append(tuple(rotated))
     return rotations
+
+  def all_positions(self, piece):
+    """All positions of a piece.  Accepts the list format."""
+    pass
+
 
 
 class MakeListUnitTest(unittest.TestCase):
