@@ -4,6 +4,8 @@ import optparse
 import pprint
 import unittest
 import sys
+from rotate import Rotator
+import re
 
 # Module data in uppercase
 RAW_PIECES = [
@@ -46,7 +48,7 @@ def make_list(pieces):
         listpieces.append([])
         str_piece = bin(piece)[2:]
         if len(str_piece) < 64:
-        	str_piece = '0' * (64 - len(str_piece)) + str_piece
+          str_piece = '0' * (64 - len(str_piece)) + str_piece
         for char in str_piece:
             listpieces[i].append(bool(int(char)))
     return listpieces
@@ -69,6 +71,40 @@ def total_collision_count(pieces):
     return collision_count
 
 
+class AllTheWays(object):
+
+  def __init__(self):
+    self.r = Rotator()
+
+  def all_rotations(self, piece):
+    """All rotations of a piece.  Accepts the list format.
+
+    http://www.euclideanspace.com/maths/discrete/groups/categorise/finite/cube/index.htm
+    """
+    # This variable represents all the 24 rotations of a piece.
+    data = """i x y xx  xy  yx  yy  xxx xxy xyx xyy yxx yyx yyy
+    xxxy  xxyx  xxyy  xyxx xyyy  yxxx  yyyx  xxxyx xyxxx xyyyx"""
+    rotation_defs = re.split(r"\s+", data)
+    rotations = []
+    for rotation_def in rotation_defs:
+      rotated = piece
+      for rotation_dir in rotation_def:
+        if rotation_dir == 'i':
+          # Identity
+          pass
+        elif rotation_dir == 'x':
+          rotated = self.r.RotatePieceX(rotated)
+        elif rotation_dir == 'y':
+          rotated = self.r.RotatePieceY(rotated)
+        elif rotation_dir == 'z':
+          rotated = self.r.RotatePieceZ(rotated)
+        else:
+          raise RuntimeError("Unknown rotation directorion: %s"
+                             % rotation_dir)
+      rotations.append(tuple(rotated))
+    return rotations
+
+
 class MakeListUnitTest(unittest.TestCase):
   
   def testMakeList_1(self):
@@ -78,6 +114,18 @@ class MakeListUnitTest(unittest.TestCase):
   def testMakeList_2(self):
     pieces = [1L]
     self.assertEqual([[False] * 63 + [True]], make_list(pieces))
+
+
+class AllTheWaysUnitTest(unittest.TestCase):
+
+  def test_1(self):
+    a = AllTheWays()
+    piece = [0] * 64
+    piece[0] = 1
+    piece[1] = 1
+    piece[2] = 1
+    rotations = a.all_rotations(piece)
+    self.assertEqual(24, len(set(rotations)))
 
 
 def main():

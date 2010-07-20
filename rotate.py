@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 
 import unittest
 import copy
-import numpy
 import itertools
 import pprint
 import math
@@ -111,7 +110,7 @@ class Rotator(object):
       self.z_rot_map = self._GetRotationMapping(self.RotateCoordsZ)
     return self.z_rot_map
 
-  def RotateElementX(self, n):
+  def RotatePieceX(self, n):
     assert len(n) == 64, "n has the wrong length."
     mapping = self.GetRotationMappingX()
     new = range(64)
@@ -119,7 +118,7 @@ class Rotator(object):
       new[mapping[i]] = n[i]
     return new
 
-  def RotateElementY(self, n):
+  def RotatePieceY(self, n):
     assert len(n) == 64, "n has the wrong length."
     mapping = self.GetRotationMappingY()
     new = range(64)
@@ -127,7 +126,7 @@ class Rotator(object):
       new[mapping[i]] = n[i]
     return new
 
-  def RotateElementZ(self, n):
+  def RotatePieceZ(self, n):
     assert len(n) == 64, "n has the wrong length."
     mapping = self.GetRotationMappingZ()
     new = range(64)
@@ -171,13 +170,13 @@ class FooTest(unittest.TestCase):
     expected = copy.copy(self.data)
     expected[12] = 1
     self.data[0] = 1
-    self.assertEqual(expected, self.r.RotateElementX(self.data))
+    self.assertEqual(expected, self.r.RotatePieceX(self.data))
 
   def test_2(self):
     expected = copy.copy(self.data)
     expected[24] = 1
     self.data[20] = 1
-    self.assertEqual(expected, self.r.RotateElementX(self.data))
+    self.assertEqual(expected, self.r.RotatePieceX(self.data))
 
   def testX_3(self):
     data = range(64)
@@ -201,7 +200,7 @@ class FooTest(unittest.TestCase):
                 44, 45, 46, 47,
                 28, 29, 30, 31,
                 12, 13, 14, 15]
-    self.assertEqual(expected, self.r.RotateElementX(data))
+    self.assertEqual(expected, self.r.RotatePieceX(data))
 
   def testX_4(self):
     data = (list('a' * 16)
@@ -227,7 +226,7 @@ class FooTest(unittest.TestCase):
                 'c', 'c', 'c', 'c',
                 'b', 'b', 'b', 'b',
                 'a', 'a', 'a', 'a']
-    self.assertEqual(expected, self.r.RotateElementX(data))
+    self.assertEqual(expected, self.r.RotatePieceX(data))
 
   def testRotateCoordsY(self):
     dim = (0, 0, 0)
@@ -239,7 +238,7 @@ class FooTest(unittest.TestCase):
     expected[38] = 1
     data = copy.copy(self.data)
     data[22] = 1
-    self.assertEqual(expected, self.r.RotateElementY(data))
+    self.assertEqual(expected, self.r.RotatePieceY(data))
 
   def testY_2(self):
     data = (list('a' * 16)
@@ -247,7 +246,7 @@ class FooTest(unittest.TestCase):
           + list('c' * 16)
           + list('d' * 16))
     expected = list("dcba") * 16
-    self.assertEqual(expected, self.r.RotateElementY(data))
+    self.assertEqual(expected, self.r.RotatePieceY(data))
 
   def testRotateCoordsZ(self):
     dim = (0, 0, 0)
