@@ -29,13 +29,25 @@ def show(pieces):
     Take in raw pieces and represent them as x's and dots.
     """
     for i, piece in enumerate(pieces):
-        print '%d:' % (i+1)
-        print
+        print '%d:' % (i+1), piece
+
+
+def visualize_piece(piece):
+  """Shows something that humans can interpret spacially."""
+  s = ['X ' if x else '. ' for x in piece]
+  for i in range(0, 16, 4):
+    for j in range(0, 64, 16):
+      print "".join(s[i+j:i+j+4]), " ",
+      # print "%s:%s" % (i+j, i+j+4),
+    print
+  # print s[0:4], s[16:20], s[32:36], s[48:52]
+  # print s[4:8], s[20:24], 
+
 
 def make_binary(RAW_PIECES):
     pieces = []
     for piece in RAW_PIECES:
-        val = 0
+        val = 0L
         for i, char in enumerate(piece):
             if char == 'x':
                 val += 2**(64-i)
@@ -100,7 +112,24 @@ class AllTheWays(object):
     return rotations
 
   def all_positions(self, piece):
-    """All positions of a piece.  Accepts the list format."""
+    """All positions of a piece.  Accepts the list format.
+
+    The algorithm:
+    - move the piece near the (0, 0, 0) corner
+    - while true # x
+    	- while true # y
+    		- while true # z
+    			- record the position
+          - if can move along z
+          	- move
+            - else break z
+        - if can move along y
+        	- move
+          - else break y
+      - if can move along x
+      	- move
+        - else break
+    """
     pass
 
 
